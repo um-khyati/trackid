@@ -17,11 +17,11 @@ import Divider from './components/Divider';
 // import Fork from './sections/03-Fork/Fork';
 // import ComplianceCase from './sections/04A-ComplianceCase/ComplianceCase';
 // import Anatomy from './sections/04B-Anatomy/Anatomy';
-// import EngineeringCredibility from './sections/05A-EngineeringCredibility/EngineeringCredibility';
+import EngineeringCredibility from './sections/05A-EngineeringCredibility/EngineeringCredibility';
 // import PeaceOfMind from './sections/05B-PeaceOfMind/PeaceOfMind';
 // import InstitutionalAsk from './sections/06A-InstitutionalAsk/InstitutionalAsk';
 // import Invitation from './sections/06B-Invitation/Invitation';
-// import Closing from './sections/07-Closing/Closing';
+import Closing from './sections/07-Closing/Closing';
 
 function App() {
   // ---------------------------------------------------------------
@@ -67,8 +67,8 @@ function App() {
         {/* --- Institutional Track --- */}
         {/* <ComplianceCase /> */}
         {/* <Divider /> */}
-        {/* <EngineeringCredibility /> */}
-        {/* <Divider /> */}
+        { <EngineeringCredibility /> }
+        { <Divider /> }
         {/* <InstitutionalAsk /> */}
         {/* <Divider /> */}
 
@@ -81,7 +81,7 @@ function App() {
         {/* <Divider /> */}
 
         {/* --- Shared Closing --- */}
-        {/* <Closing /> */}
+        { <Closing /> }
 
         {/* ============================================================ */}
         {/* Phase 1 infrastructure verification — remove after sections  */}
