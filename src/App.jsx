@@ -13,7 +13,7 @@ import Divider from './components/Divider';
 // Do NOT reorder: this IS the page's visual sequence.
 // -------------------------------------------------------------------
 // import Hero from './sections/01-Hero/Hero';
-// import Reveal from './sections/02-Reveal/Reveal';
+import Reveal from './sections/02-Reveal/Reveal';
 // import Fork from './sections/03-Fork/Fork';
 // import ComplianceCase from './sections/04A-ComplianceCase/ComplianceCase';
 // import Anatomy from './sections/04B-Anatomy/Anatomy';
@@ -59,7 +59,7 @@ function App() {
 
         {/* <Hero /> */}
         {/* <Divider /> */}
-        {/* <Reveal /> */}
+        { <Reveal /> }
         {/* <Divider /> */}
         {/* <Fork /> */}
         {/* <Divider /> */}
