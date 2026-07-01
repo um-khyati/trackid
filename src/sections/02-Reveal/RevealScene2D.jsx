@@ -1,5 +1,6 @@
 // RevealScene2D.jsx
 import { useEffect, useRef } from 'react';
+import useCursorParallax from './useCursorParallax';
 
 const PIECES = [
   { key: 'back',    src: '/assets/images/piece-back.png',    finalX: -300, label: 'Shell' },
@@ -19,24 +20,35 @@ export default function RevealScene2D({ progressRef }) {
   const pieceRefs = useRef([]);
   const labelRefs = useRef([]);
   const currentX = useRef(PIECES.map(() => 0));
+  const currentScale = useRef(1);
+  const currentCursorX = useRef(0);
+  const currentCursorY = useRef(0);
   const rafRef = useRef(null);
+  const cursorRef = useCursorParallax(true);
 
   useEffect(() => {
     function animate() {
       const p = progressRef.current;
       const eased = easeInOut(p);
+      const cursor = cursorRef.current;
+
+      currentCursorX.current += (cursor.x - currentCursorX.current) * 0.08;
+      currentCursorY.current += (cursor.y - currentCursorY.current) * 0.08;
+      currentScale.current += ((1 + currentCursorY.current * 0.03) - currentScale.current) * 0.08;
 
       PIECES.forEach((piece, i) => {
-        const targetX = piece.finalX * eased;
+        const baseTargetX = piece.finalX * eased;
+        const depthMultiplier = 0.7 + (i + 1) * 0.12;
+        const cursorDrift = currentCursorX.current * depthMultiplier * 22;
+        const targetX = baseTargetX + cursorDrift;
 
-        // each piece has slightly different lerp speed — outer pieces lag behind
         const lerpSpeed = 0.06 + i * 0.01;
         currentX.current[i] += (targetX - currentX.current[i]) * lerpSpeed;
 
         const el = pieceRefs.current[i];
         if (!el) return;
 
-        el.style.transform = `translateX(${currentX.current[i]}px)`;
+        el.style.transform = `translateX(${currentX.current[i]}px) scale(${currentScale.current})`;
 
         if (piece.key === 'front') {
           el.style.opacity = 1;
