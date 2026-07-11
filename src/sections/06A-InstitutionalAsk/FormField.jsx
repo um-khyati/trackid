@@ -31,12 +31,10 @@ export default function FormField({ field, value, error, onChange }) {
     <div className="space-y-2">
       <label htmlFor={field.name} className="block font-medium text-ink">
         {field.label}
-
         {field.required && <span className="ml-1 text-red-500">*</span>}
       </label>
 
       {/* TEXTAREA */}
-
       {field.type === "textarea" ? (
         <textarea
           id={field.name}
@@ -49,27 +47,20 @@ export default function FormField({ field, value, error, onChange }) {
           className={clsx(baseClasses, "leading-normal resize-none")}
         />
       ) : field.type === "select" ? (
+        
         /* SELECT */
-
-        <select
-          id={field.name}
-          name={field.name}
-          value={value || ""}
-          onChange={onChange}
-          className={baseClasses}
-        >
-          <option value="">Select an option</option>
-
-          {field.options.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-
+        <div className="relative">
+          <select
+            id={field.name}
+            name={field.name}
+            value={value || ""}
+            onChange={onChange}
+            style={controlStyle}
+            className={clsx(baseClasses, "appearance-none")}
+          >
+            <option value="">Select an option</option>
             {field.options.map((option) => (
-              <option
-                key={option.value}
-                value={option.value}
-              >
+              <option key={option.value} value={option.value}>
                 {option.label}
               </option>
             ))}
@@ -81,8 +72,8 @@ export default function FormField({ field, value, error, onChange }) {
           />
         </div>
       ) : (
+        
         /* INPUT */
-
         <input
           id={field.name}
           name={field.name}
