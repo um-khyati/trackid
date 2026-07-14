@@ -39,6 +39,7 @@ export default function FormField({
         {field.required && <span className="ml-1 text-red-400">*</span>}
       </label>
 
+      {/* TEXTAREA */}
       {field.type === "textarea" ? (
         <textarea
           id={field.name}
@@ -56,6 +57,8 @@ export default function FormField({
           className={clsx(baseClasses, "leading-normal resize-none")}
         />
       ) : field.type === "select" ? (
+        
+        /* SELECT */
         <div className="relative">
           <select
             id={field.name}
@@ -64,6 +67,7 @@ export default function FormField({
             onChange={onChange}
             style={controlStyle}
             className={clsx(baseClasses, "appearance-none pr-12")}
+            className={clsx(baseClasses, "appearance-none")}
           >
             <option value="" className="bg-ink text-parchment">
               Select an option
@@ -86,6 +90,8 @@ export default function FormField({
           />
         </div>
       ) : (
+        
+        /* INPUT */
         <input
           id={field.name}
           name={field.name}
