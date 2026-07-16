@@ -13,6 +13,7 @@ import {
   useMotionTemplate,
   useSpring,
   useTransform,
+  useInView,
   useScroll,
   animate,
 } from "framer-motion";
@@ -38,6 +39,11 @@ const FEATURES = [
 
 const FILTERS = ["All", "New", "Bestseller"];
 
+// ============================================================
+// PRIMITIVES — same visual language as the Compliance section,
+// new signature moves specific to this section
+// ============================================================
+
 // ─── Aceternity-Style Dot Grid Background ────────────────────────────────
 function DotBackground() {
   return (
@@ -60,7 +66,7 @@ function DotBackground() {
   );
 }
 
-// ─── Radar Pulse — expanding GPS-signal rings ────────────────────────────
+// ─── Radar Pulse — expanding GPS-signal rings, on-theme for a tracker ──────
 function RadarPulse({ tone = "gold", size = 340, ringCount = 3, reducedMotion }) {
   const toneClass = tone === "gold" ? "border-gold/20" : "border-accent/20";
   if (reducedMotion) return null;
@@ -79,6 +85,7 @@ function RadarPulse({ tone = "gold", size = 340, ringCount = 3, reducedMotion })
   );
 }
 
+// ─── Capability Halo — feature icons orbiting the hero pendant ────────────
 function CapabilityHalo({ items, radius = 210, reducedMotion }) {
   if (reducedMotion) {
     return (
@@ -130,6 +137,7 @@ function CapabilityHalo({ items, radius = 210, reducedMotion }) {
   );
 }
 
+// ─── Text Generate — words flip in on a 3D axis, staggered ────────────────
 function TextGenerate({ text, className = "", highlight = [] }) {
   const words = text.split(" ");
   const highlightSet = highlight.map((w) => w.toLowerCase());
@@ -233,24 +241,6 @@ function ScrambleText({ text, className = "", trigger = true, speed = 26 }) {
   return <span className={`font-mono ${className}`}>{display}</span>;
 }
 
-function StackCard({ children, index, total, progress }) {
-  const segments = Math.max(total - 1, 1);
-  const start = index === 0 ? -1 : (index - 1) / segments;
-  const end = index === 0 ? 0 : index / segments;
-
-  const rawY = useTransform(progress, [start, end], ["100%", "0%"]);
-  const y = index === 0 ? "0%" : rawY;
-
-  return (
-    <motion.div
-      style={{ y, zIndex: index }}
-      className="absolute inset-0"
-    >
-      {children}
-    </motion.div>
-  );
-}
-
 function Marquee({ items, className = "" }) {
   const track = [...items, ...items];
   return (
@@ -274,6 +264,50 @@ function Marquee({ items, className = "" }) {
   );
 }
 
+// ─── Re-instated StackCard for the Stacked Layout ────────────────────────
+function StackCard({ children, index, total, progress }) {
+  const segments = Math.max(total - 1, 1);
+  const start = index === 0 ? -1 : (index - 1) / segments;
+  const end = index === 0 ? 0 : index / segments;
+
+  const rawY = useTransform(progress, [start, end], ["100%", "0%"]);
+  const y = index === 0 ? "0%" : rawY;
+
+  return (
+    <motion.div
+      style={{ y, zIndex: index }}
+      className="absolute inset-0"
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+// ─── Restored StatNumber (from main branch) ──────────────────────────────
+function StatNumber({ value, suffix, inView }) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (!inView || !ref.current) return;
+    const controls = animate(0, value, {
+      duration: 1.1,
+      ease: EASE,
+      onUpdate(v) {
+        if (ref.current) ref.current.textContent = Math.round(v).toString();
+      },
+    });
+    return () => controls.stop();
+  }, [inView, value]);
+
+  return (
+    <span className="font-display text-3xl text-ink">
+      <span ref={ref}>0</span>
+      <span className="ml-0.5 text-base text-accent">{suffix}</span>
+    </span>
+  );
+}
+
+// ─── Aceternity 3D TiltCard (from incoming branch) ───────────────────────
 function TiltCard({ children, className = "", onHoverChange, dimmed, reducedMotion }) {
   const ref = useRef(null);
   const rotateX = useMotionValue(0);
@@ -331,10 +365,15 @@ export default function Anatomy() {
   const data = COPY.anatomy;
 
   const [activeFilter, setActiveFilter] = useState("All");
+  
+  // Preserved state from main branch
+  const [hoveredPendant, setHoveredPendant] = useState(null);
+  
   const filteredItems = data.collectionItems.filter(
     (item) => activeFilter === "All" || item.tag === activeFilter
   );
 
+  // Stack Scroll hooks restored so the layout component doesn't crash
   const stackScrollRef = useRef(null);
   const { scrollYProgress: stackProgress } = useScroll({
     target: stackScrollRef,
@@ -535,10 +574,13 @@ export default function Anatomy() {
           </div>
         </motion.div>
 
+        {/* ==========================================================
+                            COLLECTION GRID / STACK — hover-lift cards
+        ========================================================== */}
         <div
           ref={stackScrollRef}
           style={{ height: `${Math.max(filteredItems.length, 1) * 100}vh` }}
-          className="relative mt-20 mb-16"
+          className="relative z-10 mt-20 mb-16 max-w-[1500px] mx-auto"
         >
           <div className="sticky top-0 h-screen w-full overflow-hidden px-4 py-8 lg:px-10 lg:py-12">
             {filteredItems.length === 0 && (
@@ -556,6 +598,8 @@ export default function Anatomy() {
                 <TiltCard
                   reducedMotion={shouldReduceMotion}
                   className="mx-auto h-full w-full max-w-[1400px] rounded-[28px]"
+                  onHoverChange={(isHovering) => setHoveredPendant(isHovering ? item.id : null)}
+                  dimmed={hoveredPendant && hoveredPendant !== item.id}
                 >
                   <PendantCard item={item} index={idx + 1} total={filteredItems.length} />
                 </TiltCard>

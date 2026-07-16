@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, BadgeCheck, ArrowUpRight, RotateCw } from "lucide-react";
+import { Plus, BadgeCheck, RotateCw } from "lucide-react";
 
 import { ASSETS } from "../../content/assets";
 import { EASE, fadeUp } from "../../motion/variants";
@@ -35,45 +35,39 @@ export default function PendantCard({ item, index = 1, total = 4 }) {
     setIsHovering(false);
   }
 
-  // Alternate sides card-to-card: odd pieces show the image on the left,
-  // even pieces show it on the right — order controls grid placement,
-  // not just visual position, so this actually swaps which track each
-  // panel lands in at the lg breakpoint.
-  const imageOnLeft = index % 2 === 1;
-  const textOrderClass = imageOnLeft ? "lg:order-2" : "lg:order-1";
-  const imageOrderClass = imageOnLeft ? "lg:order-1" : "lg:order-2";
+  // Alternates the layout left-to-right on desktop based on the card's index
+  const textOrderClass = index % 2 === 0 ? "lg:order-2" : "lg:order-1";
+  const imageOrderClass = index % 2 === 0 ? "lg:order-1" : "lg:order-2";
 
   return (
     <motion.article
       ref={cardRef}
       {...fadeUp}
-      onMouseLeave={handleMouseLeave}
-      whileHover={shouldReduceMotion ? undefined : { y: -8 }}
+      whileHover={shouldReduceMotion ? undefined : { y: -8, scale: 1.015 }}
       transition={{ duration: 0.35, ease: EASE }}
       className="
         group
         relative
-        grid
+        flex
         h-full
-        grid-cols-1
+        flex-col
         overflow-hidden
         rounded-[32px]
         border
         border-gold/20
         bg-stone/90
         shadow-sm
-        backdrop-blur
         transition-[border-color,box-shadow]
         duration-300
         hover:border-gold/50
         hover:shadow-2xl
-        lg:grid-cols-2
+        lg:flex-row
       "
     >
       {/* ============================================================
                 TEXT PANEL — name, tags, description, CTA
       ============================================================ */}
-      <div className={`relative z-10 order-2 flex flex-col justify-between gap-10 p-8 ${textOrderClass} lg:p-14`}>
+      <div className={`relative z-10 flex w-full flex-col justify-between gap-10 p-8 lg:w-1/2 lg:p-14 ${textOrderClass}`}>
         <div>
           <div className="flex items-center justify-between">
             <BrandDots />
@@ -102,10 +96,9 @@ export default function PendantCard({ item, index = 1, total = 4 }) {
 
           <p className="mt-5 max-w-lg text-lg leading-8 text-slate">{item.description}</p>
 
-          {/* Full motif list — each piece's title AND its description,
-              not just a condensed one-line tag row. */}
+          {/* Full motif list */}
           <div className="mt-8 space-y-5">
-            {item.motifNotes.map((note, noteIndex) => (
+            {(item.motifNotes || []).map((note, noteIndex) => (
               <motion.div
                 key={note.title}
                 initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }}
@@ -126,83 +119,57 @@ export default function PendantCard({ item, index = 1, total = 4 }) {
           </div>
         </div>
 
-        <div>
-          <div className="h-px w-full bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
-
-          <div className="mt-8 flex items-center justify-between">
-            <button
-              type="button"
-              onClick={() => setExpanded((v) => !v)}
-              className="flex items-center gap-3 text-left"
-            >
-              <span className="font-mono text-sm uppercase tracking-[0.3em] text-gold">
-                {expanded ? "Hide specs" : "Tech specs"}
-              </span>
-              <motion.span
-                animate={{ rotate: expanded ? 45 : 0 }}
-                transition={{ duration: 0.25, ease: EASE }}
-                className="flex h-7 w-7 items-center justify-center rounded-full border border-gold/30"
-              >
-                <Plus size={14} strokeWidth={2} className="text-gold" />
-              </motion.span>
-            </button>
-
-            <motion.button
-              type="button"
-              onClick={() => setShowBack((v) => !v)}
-              whileHover={shouldReduceMotion ? undefined : { scale: 1.08 }}
-              whileTap={{ scale: 0.94 }}
-              aria-label="Flip pendant"
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gold text-parchment shadow-sm"
-            >
-              <ArrowUpRight size={20} strokeWidth={2} />
-            </motion.button>
-          </div>
-
-          <motion.div
-            initial={false}
-            animate={{
-              height: expanded ? "auto" : 0,
-              opacity: expanded ? 1 : 0,
-            }}
-            transition={{ duration: 0.35, ease: EASE }}
-            className="overflow-hidden"
+        {/* Tech Specs Accordion */}
+        <div className="mt-8 border-t border-gold/20 pt-6">
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            className="flex items-center gap-3 text-left w-full justify-between lg:justify-start"
           >
-            <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-3 font-mono text-xs uppercase tracking-wider text-slate">
-              {(item.specs || []).map((spec, i) => (
-                <motion.div
-                  key={spec.label}
-                  initial={false}
-                  animate={
-                    expanded
-                      ? { opacity: 1, y: 0 }
-                      : { opacity: 0, y: shouldReduceMotion ? 0 : 6 }
-                  }
-                  transition={{ duration: 0.3, ease: EASE, delay: expanded ? i * 0.05 : 0 }}
-                  className="flex flex-col gap-1"
-                >
-                  <dt className="text-slate">{spec.label}</dt>
-                  <dd className="text-ink normal-case tracking-normal text-sm font-body">
-                    {spec.value}
-                  </dd>
-                </motion.div>
-              ))}
-            </dl>
-          </motion.div>
+            <span className="font-mono text-sm uppercase tracking-[0.3em] text-gold">
+              {expanded ? "Hide specs" : "Tech specs"}
+            </span>
+            <motion.span
+              animate={{ rotate: expanded ? 45 : 0 }}
+              transition={{ duration: 0.25, ease: EASE }}
+              className="flex h-7 w-7 items-center justify-center rounded-full border border-gold/30"
+            >
+              <Plus size={14} strokeWidth={2} className="text-gold" />
+            </motion.span>
+          </button>
+
+          <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-3 font-mono text-xs uppercase tracking-wider text-slate">
+            {(item.specs || []).map((spec, i) => (
+              <motion.div
+                key={spec.label}
+                initial={false}
+                animate={
+                  expanded
+                    ? { opacity: 1, y: 0, height: "auto" }
+                    : { opacity: 0, y: shouldReduceMotion ? 0 : 6, height: 0, overflow: "hidden" }
+                }
+                transition={{ duration: 0.3, ease: EASE, delay: expanded ? i * 0.05 : 0 }}
+                className="flex flex-col gap-1"
+              >
+                <dt className="text-slate">{spec.label}</dt>
+                <dd className="text-ink normal-case tracking-normal text-sm font-body">
+                  {spec.value}
+                </dd>
+              </motion.div>
+            ))}
+          </dl>
         </div>
       </div>
 
       {/* ============================================================
-                IMAGE PANEL — the piece fills its own showcase space,
-                mirroring a framed product shot rather than floating
-                in a corner of a mostly-empty card.
+                IMAGE PANEL — framed product shot, interactive
       ============================================================ */}
       <div
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={handleMouseLeave}
-        className={`relative order-1 h-[420px] overflow-hidden bg-parchment ${imageOrderClass} lg:h-full`}
+        className={`relative flex h-[420px] w-full items-center justify-center overflow-hidden bg-parchment lg:h-auto lg:w-1/2 ${imageOrderClass}`}
       >
-        {/* Ambient glow behind the piece — kept subtle so the panel still reads as void-black */}
+        {/* Ambient glow behind the piece */}
         <div className="pointer-events-none absolute left-1/2 top-1/2 h-[70%] w-[70%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold/15 blur-3xl" />
 
         {/* Rotating bezel ring */}
@@ -239,40 +206,41 @@ export default function PendantCard({ item, index = 1, total = 4 }) {
         )}
 
         {/* Top-left annotation */}
-        <motion.div
-          initial={shouldReduceMotion ? false : { opacity: 0, x: -10 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, ease: EASE }}
-          className="absolute left-6 top-6 z-30 flex items-center gap-3"
-        >
-          <div className="h-px w-8 bg-gold/50" />
-          <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-ink/70">
-            {item.motifNotes[0].title}
-          </span>
-        </motion.div>
+        {item.motifNotes && item.motifNotes.length > 0 && (
+          <motion.div
+            initial={shouldReduceMotion ? false : { opacity: 0, x: -10 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, ease: EASE }}
+            className="absolute left-6 top-6 z-30 flex items-center gap-3"
+          >
+            <div className="h-px w-8 bg-gold/50" />
+            <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-ink/70">
+              {item.motifNotes[0].title}
+            </span>
+          </motion.div>
+        )}
 
         {/* Bottom-right annotation */}
-        <motion.div
-          initial={shouldReduceMotion ? false : { opacity: 0, x: 10 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, ease: EASE }}
-          className="absolute bottom-6 right-6 z-30 flex items-center gap-3"
-        >
-          <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-ink/70">
-            {item.motifNotes[1].title}
-          </span>
-          <div className="h-px w-8 bg-gold/50" />
-        </motion.div>
+        {item.motifNotes && item.motifNotes.length > 1 && (
+          <motion.div
+            initial={shouldReduceMotion ? false : { opacity: 0, x: 10 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, ease: EASE }}
+            className="absolute bottom-6 right-6 z-30 flex items-center gap-3"
+          >
+            <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-ink/70">
+              {item.motifNotes[1].title}
+            </span>
+            <div className="h-px w-8 bg-gold/50" />
+          </motion.div>
+        )}
 
-        {/* The pendant itself — fills almost the entire showcase, leaving
-            only a thin border of black at the panel's edges.
-            NOTE: this uses a cross-fade, not a 3D rotateY flip — the card
-            is already tilted in 3D space by the parent TiltCard, and
-            nesting a second independent perspective/preserve-3d context
-            inside an already-transformed, rounded+overflow-hidden card
-            is a known WebKit bug (blank/clipped faces, sheared box). */}
+        {/* 
+            The pendant itself — fills almost the entire showcase.
+            Uses a cross-fade to cleanly flip front-to-back, avoiding WebKit 3D nesting bugs. 
+        */}
         <div className="relative flex h-full w-full items-center justify-center p-6 lg:p-10">
           <div className="relative h-full w-full">
             <motion.img
@@ -312,7 +280,7 @@ export default function PendantCard({ item, index = 1, total = 4 }) {
               aria-label={showBack ? "Show front of pendant" : "Show back of pendant"}
             >
               <RotateCw size={16} strokeWidth={1.8} />
-              <span className="font-mono text-[9px] uppercase tracking-[0.2em]">
+              <span className="font-mono text-[9px] uppercase tracking-[0.2em] mt-1">
                 {showBack ? "Front" : "Flip"}
               </span>
             </motion.button>
