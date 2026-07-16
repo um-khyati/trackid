@@ -14,7 +14,6 @@ import {
   useSpring,
   useTransform,
   useInView,
-  useScroll,
   animate,
 } from "framer-motion";
 
@@ -39,6 +38,11 @@ const FEATURES = [
 
 const FILTERS = ["All", "New", "Bestseller"];
 
+// ============================================================
+// PRIMITIVES — same visual language as the Compliance section,
+// new signature moves specific to this section
+// ============================================================
+
 // ─── Radar Pulse — expanding GPS-signal rings, on-theme for a tracker ──────
 function RadarPulse({ tone = "gold", size = 340, ringCount = 3, reducedMotion }) {
   const toneClass = tone === "gold" ? "border-gold/45" : "border-accent/45";
@@ -58,6 +62,9 @@ function RadarPulse({ tone = "gold", size = 340, ringCount = 3, reducedMotion })
   );
 }
 
+// ─── Capability Halo — feature icons orbiting the hero pendant ────────────
+// Signature move for the hero: instead of stating the six capabilities as a
+// list, they visibly encircle the physical object they belong to.
 function CapabilityHalo({ items, radius = 210, reducedMotion }) {
   if (reducedMotion) {
     return (
@@ -109,6 +116,10 @@ function CapabilityHalo({ items, radius = 210, reducedMotion }) {
   );
 }
 
+// ─── Text Generate — words flip in on a 3D axis, staggered ────────────────
+// `highlight` marks specific words for a gold-foil shimmer treatment instead
+// of the flat ink color — used to land on the one or two words that carry
+// the sentence's meaning (e.g. "personality", "protection").
 function TextGenerate({ text, className = "", highlight = [] }) {
   const words = text.split(" ");
   const highlightSet = highlight.map((w) => w.toLowerCase());
@@ -156,6 +167,9 @@ function TextGenerate({ text, className = "", highlight = [] }) {
   );
 }
 
+// ─── Highlight helper — wraps specific words in a gold-foil shimmer span ──
+// Uses real space characters between words (not CSS margin) so the browser
+// still has natural line-break opportunities and wraps normally.
 function renderHighlightedWords(text, highlightWords = []) {
   const lower = highlightWords.map((w) => w.toLowerCase());
   const words = text.split(" ");
@@ -229,18 +243,20 @@ function ScrambleText({ text, className = "", trigger = true, speed = 26 }) {
   return <span className={`font-mono ${className}`}>{display}</span>;
 }
 
-function StackCard({ children, index, total, progress }) {
-  const segments = Math.max(total - 1, 1);
-  const start = index === 0 ? -1 : (index - 1) / segments;
-  const end = index === 0 ? 0 : index / segments;
-
-  const rawY = useTransform(progress, [start, end], ["100%", "0%"]);
-  const y = index === 0 ? "0%" : rawY;
-
+// ─── Hover wrapper — simple lift, dims siblings ────────────────────────────
+function TiltCard({ children, className = "", dimmed, onHoverChange, reducedMotion }) {
   return (
     <motion.div
-      style={{ y, zIndex: index }}
-      className="absolute inset-0"
+      animate={{
+        scale: dimmed ? 0.98 : 1,
+        opacity: dimmed ? 0.6 : 1,
+        filter: dimmed ? "blur(1px)" : "blur(0px)",
+      }}
+      whileHover={reducedMotion ? undefined : { y: -8 }}
+      transition={{ duration: 0.3, ease: EASE }}
+      onMouseEnter={() => onHoverChange?.(true)}
+      onMouseLeave={() => onHoverChange?.(false)}
+      className={`relative ${className}`}
     >
       {children}
     </motion.div>
@@ -294,75 +310,15 @@ function StatNumber({ value, suffix, inView }) {
   );
 }
 
-// ─── 3D Tilt Card — cursor-driven tilt + glare, dims siblings ──────────────
-function TiltCard({ children, className = "", onHoverChange, dimmed, reducedMotion }) {
-  const ref = useRef(null);
-  const rotateX = useMotionValue(0);
-  const rotateY = useMotionValue(0);
-  const glareX = useMotionValue(50);
-  const glareY = useMotionValue(50);
-
-  const handleMouseMove = (e) => {
-    if (reducedMotion || !ref.current) return;
-    const rect = ref.current.getBoundingClientRect();
-    const px = (e.clientX - rect.left) / rect.width;
-    const py = (e.clientY - rect.top) / rect.height;
-    animate(rotateY, (px - 0.5) * 14, { duration: 0.2, ease: EASE });
-    animate(rotateX, (0.5 - py) * 14, { duration: 0.2, ease: EASE });
-    glareX.set(px * 100);
-    glareY.set(py * 100);
-  };
-
-  const handleMouseLeave = () => {
-    animate(rotateX, 0, { duration: 0.4, ease: EASE });
-    animate(rotateY, 0, { duration: 0.4, ease: EASE });
-    onHoverChange?.(false);
-  };
-
-  return (
-    <motion.div
-      ref={ref}
-      style={{ rotateX, rotateY, transformPerspective: 900 }}
-      animate={{
-        scale: dimmed ? 0.98 : 1,
-        opacity: dimmed ? 0.55 : 1,
-        filter: dimmed ? "blur(1.5px)" : "blur(0px)",
-      }}
-      transition={{ duration: 0.3, ease: EASE }}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={() => onHoverChange?.(true)}
-      onMouseLeave={handleMouseLeave}
-      className={`relative ${className}`}
-    >
-      {!reducedMotion && (
-        <motion.div
-          style={{
-            background: `radial-gradient(220px circle at ${glareX.get()}% ${glareY.get()}%, rgba(201,166,107,0.16), transparent 70%)`,
-          }}
-          className="pointer-events-none absolute inset-0 rounded-3xl transition-opacity"
-        />
-      )}
-      {children}
-    </motion.div>
-  );
-}
-
 export default function Anatomy() {
   const shouldReduceMotion = useReducedMotion();
   const data = COPY.anatomy;
 
-  const [hoveredPendant, setHoveredPendant] = useState(null);
   const [activeFilter, setActiveFilter] = useState("All");
-  
+  const [hoveredPendant, setHoveredPendant] = useState(null);
   const filteredItems = data.collectionItems.filter(
     (item) => activeFilter === "All" || item.tag === activeFilter
   );
-
-  const stackScrollRef = useRef(null);
-  const { scrollYProgress: stackProgress } = useScroll({
-    target: stackScrollRef,
-    offset: ["start start", "end end"],
-  });
 
   const marqueeNames = useMemo(
     () => data.collectionItems.map((item) => item.name?.toUpperCase() || item.title?.toUpperCase() || "TRAKID"),
@@ -569,10 +525,7 @@ export default function Anatomy() {
         </motion.div>
 
         {/* ==========================================================
-                COLLECTION STACK — scroll-pinned card reveal.
-                Card 1 shows first; scrolling brings each next card up
-                from the bottom to overlap the one before it, and
-                scrolling back up reverses the sequence.
+                            COLLECTION GRID — hover-lift cards
         ========================================================== */}
 
         <motion.div
