@@ -3,6 +3,7 @@ import { useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import PendantScene from './PendantScene';
+import AnimatedMeshBackground from './AnimatedMeshBackground';
 import IntroCurtain from '../../components/IntroCurtain';
 import { useIntroSequence } from './useIntroSequence';
 import SoundToggle from '../../components/SoundToggle';
@@ -123,7 +124,8 @@ export default function Hero() {
 
   return (
     <div ref={wrapperRef} style={{ height: `${PIN_DISTANCE_VH}vh` }}>
-      <section ref={sectionRef} id="hero" className="relative w-full h-screen overflow-hidden" style={{ background: 'radial-gradient(ellipse 80% 70% at 50% 40%, #2a1122 0%, #14070e 40%, #050205 100%)' }}>
+      <section ref={sectionRef} id="hero" className="relative w-full h-screen overflow-hidden">
+        <AnimatedMeshBackground />
 
         {/* The 3D Scene — elevated above the curtain (z-50) only during intro */}
         <div className={`absolute inset-0 ${introActive ? 'z-[55]' : ''}`}>
