@@ -283,3 +283,21 @@ html::-webkit-scrollbar {
   0%, 55% { transform: translateX(-130%); }
   100%    { transform: translateX(130%); }
 }
+
+/* ==========================================================
+   FULLSCREEN MENU — outline/filled row swap (OSOS-style)
+========================================================== */
+.menu-item {
+  -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.5);
+  color: transparent;
+  transition: color 0.35s ease, -webkit-text-stroke-color 0.35s ease, letter-spacing 0.35s ease;
+}
+.menu-item:hover,
+.menu-item.menu-item-solid {
+  color: #fff;
+  -webkit-text-stroke-color: transparent;
+}
+.menu-item-solid:hover {
+  -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.5);
+  color: transparent;
+}

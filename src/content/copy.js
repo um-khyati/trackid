@@ -421,6 +421,21 @@ export const COPY = {
       toPromise:    'None of it works if it doesn’t last —',
     },
 
+    // THE VOWS — OSOS-style poster statements (brand promises shouted
+    // at full size). Rendered by sections/06D-TheVows.
+    vows: {
+      peace:     { word: 'PEACE OF MIND', line: 'Your calm is the product.' },
+      always:    { word: 'ALWAYS ON',     line: 'Protection that doesn’t clock out.' },
+      encrypted: { word: 'ENCRYPTED',     line: 'Her location is hers — and yours. No one else’s.' },
+      time:      { label: 'Battery', word1: 'SEVEN', word2: 'DAYS', line: 'One charge. A full week of knowing she’s safe.' },
+    },
+
+    // Fixed side rail + fullscreen menu
+    rail: {
+      email: 'hello@trakid.com',
+      snake: 'TRAKID — GUARDIAN JEWELLERY — ',
+    },
+
     // Global story navigation — powers the fixed progress rail.
     // ids must match the id="" on each section element.
     nav: [

@@ -10,6 +10,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { TrackProvider } from './context/TrackContext';
 import StoryProgress from './components/StoryProgress';
 import StoryThread from './components/StoryThread';
+import SideRail from './components/SideRail';
 import WipeReveal from './components/WipeReveal';
 import Preloader from './components/Preloader';
 import { COPY } from './content/copy';
@@ -39,6 +40,7 @@ import TheBelief from './sections/04-TheBelief/TheBelief';
 import Anatomy from './sections/04B-Anatomy/Anatomy';
 import WatchedOver from './sections/05-WatchedOver/WatchedOver';
 import FeatureShowcase from './sections/04C-FeatureShowcase/FeatureShowcase';
+import TheVows from './sections/06D-TheVows/TheVows';
 import Constellation from './sections/06C-Constellation/Constellation';
 import TheInvitation from './sections/06-TheInvitation/TheInvitation';
 import Closing from './sections/07-Closing/closing';
@@ -95,6 +97,9 @@ function App() {
         {/* Global story spine: top progress bar + chapter rail */}
         <StoryProgress />
 
+        {/* OSOS-style fixed left rail + fullscreen chapter menu */}
+        <SideRail />
+
         {/* ============================================================ */}
         {/* SECTION SLOTS — uncomment as each section is built.          */}
         {/* The Divider component goes between each section boundary.    */}
@@ -125,6 +130,9 @@ function App() {
 
         {/* Chapter 6 — The Promise, Kept */}
         <FeatureShowcase />
+
+        {/* The Vows — poster statements (OSOS-style stunts) */}
+        <TheVows />
         <StoryThread />
 
         {/* Interlude — the particle pendant, statements riding the scroll */}
